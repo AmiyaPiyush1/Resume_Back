@@ -73,6 +73,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(cors({
     origin: [
+        'https://resumebuilderbackend.web.app',
         'https://resumebuilderbackend.web.app', // Replace with your deployed frontend URL
         'http://localhost:3000'
     ]
