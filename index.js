@@ -18,7 +18,7 @@ const app = express();
 const port = process.env.PORT || 5001;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 const jsearchConfig = {
     headers: {
         'x-rapidapi-key': process.env.SEARCH_API_KEY,
