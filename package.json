@@ -18,6 +18,7 @@
     "firebase-tools": "^14.16.0",
     "multer": "^2.0.2",
     "pdf-parse": "^1.1.1",
+    "puppeteer": "^24.21.0",
     "puppeteer-core": "^24.21.0"
   },
   "devDependencies": {

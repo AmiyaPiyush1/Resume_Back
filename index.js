@@ -3,7 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import axios from 'axios';
-import puppeteer from 'puppeteer';
+// --- FIX START: Import serverless-compatible packages ---
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
+// --- FIX END ---
 import { createRequire } from 'module';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -15,7 +18,7 @@ const app = express();
 const port = process.env.PORT || 5001;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 const jsearchConfig = {
     headers: {
         'x-rapidapi-key': process.env.SEARCH_API_KEY,
@@ -73,8 +76,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(cors({
     origin: [
-        'https://resumebuilderbackend.web.app',
-        'https://resumebuilderbackend.web.app', // Replace with your deployed frontend URL
+        'https://resumebuilderbackend.web.app', // Your deployed frontend URL
         'http://localhost:3000'
     ]
 }));
@@ -168,11 +170,20 @@ app.get('/api/search-jobs', async (req, res) => {
 app.post('/api/generate-pdf', async (req, res) => {
     try {
         const { htmlContent } = req.body;
-        const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+        
+        // --- FIX START: Use serverless-compatible launch options ---
+        const browser = await puppeteer.launch({
+            args: chromium.args,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+        });
+        // --- FIX END ---
+
         const page = await browser.newPage();
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
         const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' } });
         await browser.close();
+        
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=Tailored-Resume.pdf');
         res.send(pdfBuffer);
